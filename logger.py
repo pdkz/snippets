@@ -35,8 +35,8 @@ class Logger(Singleton):
         self.logfuncs = {'debug' : self.log.debug,
                          'info'  : self.log.info,
                          'warn'  : self.log.warn,
-                         'error ': self.log.error,
-                         'fatal ': self.log.fatal }
+                         'error' : self.log.error,
+                         'fatal' : self.log.fatal }
     @classmethod
     def initialize(cls):
         cls._inst = Logger()
