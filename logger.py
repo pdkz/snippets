@@ -22,6 +22,9 @@ class Logger(Singleton):
 
         fh.setFormatter(filefmt)
         sh.setFormatter(strmfmt)
+        
+        fh.setLevel(logging.INFO)
+        sh.setLevel(logging.DEBUG)
 
         self.log = logging.getLogger(__name__)
         self.log.setLevel(loglevel)
@@ -46,10 +49,13 @@ class Logger(Singleton):
 
     @staticmethod
     def save_message(level, msg, filename='', line=0, *args, **kwrgs):
+        d = {'file': '', 'line': 0}
         if level == 'error' or level == 'fatal':
-            msg = '%s in %s, line %d' % (msg, filename, line)
+            d['file'] = 'in ' + filename
+            d['line'] = ', line ' + str(line)
+        
         _inst = Logger.get_instance()
-        _inst.logfuncs[level](msg)
+        _inst.logfuncs[level](msg, extra=d)
 
 def LOGD(msg, depth=0, *args): Logger.save_message('debug', msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
 def LOGI(msg, depth=0, *args): Logger.save_message('info',  msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
