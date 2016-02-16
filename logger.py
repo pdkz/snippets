@@ -40,6 +40,10 @@ class Logger(Singleton):
     @classmethod
     def initialize(cls):
         cls._inst = Logger()
+        
+    @staticmethod
+    def finalize():
+        logging.shutdown()
 
     @classmethod
     def get_instance(cls):
