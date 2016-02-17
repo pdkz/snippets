@@ -6,7 +6,7 @@ from time import sleep
 
 class UrlRetriever(urllib.FancyURLopener):
     """
-     urlretrieve()のエラー補足用クラス
+     For catching error for urlretrieve()
     """
     def __init__(self):
         self.info = None
