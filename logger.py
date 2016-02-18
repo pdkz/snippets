@@ -53,7 +53,7 @@ class Logger(Singleton):
 
     @staticmethod
     def save_message(level, msg, filename='', line=0, *args, **kwrgs):
-        d = {'file': '', 'line': 0}
+        d = {'file': '', 'line': ''}
         if level == 'error' or level == 'fatal':
             d['file'] = 'in ' + filename
             d['line'] = ', line ' + str(line)
