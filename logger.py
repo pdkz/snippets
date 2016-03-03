@@ -30,6 +30,8 @@ class Logger(Singleton):
         dt = t.strftime('%Y%m%d')
         logfilename = '_'.join([dt, 'debug.log'])
         
+        # Add loglevel name
+        logging.addLevelName(15, 'VIEW')
         
         filelogfmt = '%(asctime)s [%(levelname)8s] %(message)s'
         strmlogfmt = '%(message)s'
