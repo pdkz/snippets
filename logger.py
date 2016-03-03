@@ -2,7 +2,22 @@
 
 import inspect
 import logging
+import datetime
 
+DEBUG = 'debug'
+VIEW  = 'view'
+INFO  = 'info'
+WARN  = 'warn'
+ERROR = 'error'
+FATAL = 'fatal'
+
+loglevel  = {DEBUG : 10,
+             VIEW  : 15,
+             INFO  : 20,
+             WARN  : 30,
+             ERROR : 40,
+             FATAL : 50}
+             
 class Singleton(object):
     def __new__(cls, *args, **kwargs) :
         if '_inst' not in vars(cls) :
@@ -11,20 +26,26 @@ class Singleton(object):
 
 class Logger(Singleton):
     def __init__(self, loglevel=logging.DEBUG):
+        t  = datetime.datetime.today()
+        dt = t.strftime('%Y%m%d')
+        logfilename = '_'.join([dt, 'debug.log'])
+        
+        
         filelogfmt = '%(asctime)s [%(levelname)8s] %(message)s'
         strmlogfmt = '%(message)s'
 
         filefmt = logging.Formatter(filelogfmt)
         strmfmt = logging.Formatter(strmlogfmt)
 
-        fh = logging.FileHandler('test.log', 'a+')
+        fh = logging.FileHandler(logfilename, 'a+')
         sh = logging.StreamHandler()
 
         fh.setFormatter(filefmt)
         sh.setFormatter(strmfmt)
         
         fh.setLevel(logging.INFO)
-        sh.setLevel(logging.DEBUG)
+        sh.setLevel(15) # loglevel 15= view(LOGV)
+        #sh.setLevel(logging.DEBUG)
 
         self.log = logging.getLogger(__name__)
         self.log.setLevel(loglevel)
@@ -32,11 +53,11 @@ class Logger(Singleton):
         self.log.addHandler(fh)
         self.log.addHandler(sh)
 
-        self.logfuncs = {'debug' : self.log.debug,
-                         'info'  : self.log.info,
-                         'warn'  : self.log.warn,
-                         'error' : self.log.error,
-                         'fatal' : self.log.fatal }
+        #self.logfuncs = {'debug' : self.log.debug,
+        #                 'info'  : self.log.info,
+        #                 'warn'  : self.log.warn,
+        #                 'error' : self.log.error,
+        #                 'fatal' : self.log.fatal }
     @classmethod
     def initialize(cls):
         cls._inst = Logger()
@@ -59,12 +80,14 @@ class Logger(Singleton):
             d['line'] = ', line ' + str(line)
         
         _inst = Logger.get_instance()
-        _inst.logfuncs[level](msg, extra=d)
+        #_inst.logfuncs[level](msg, extra=d)
+        _inst.log.log(loglevel[level], msg, extra=d)
 
-def LOGD(msg, depth=0, *args): Logger.save_message('debug', msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
-def LOGI(msg, depth=0, *args): Logger.save_message('info',  msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
-def LOGW(msg, depth=0, *args): Logger.save_message('warn',  msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
-def LOGE(msg, depth=0, *args): Logger.save_message('error', msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
+def LOGD(msg, depth=0, *args): Logger.save_message(DEBUG, msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
+def LOGV(msg, depth=0, *args): Logger.save_message(VIEW,  msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
+def LOGI(msg, depth=0, *args): Logger.save_message(INFO,  msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
+def LOGW(msg, depth=0, *args): Logger.save_message(WARN,  msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
+def LOGE(msg, depth=0, *args): Logger.save_message(ERROR, msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
 def LOGF(msg, depth=0, *args): Logger.save_message('fatal', msg, filename=inspect.currentframe(depth+1).f_code.co_filename, line=inspect.currentframe(depth+1).f_lineno, args=args)
 
 if __name__ == '__main__':
