@@ -4,6 +4,20 @@ import urllib
 import urlparse
 from time import sleep
 
+bar_length = 15
+slug = '#'
+space = ' '
+
+def writing_bar(label, bar, percent, size, total, pkg):
+    if percent > 100:
+        percent = 100
+
+    dn  = len(str(total))
+    out = "\r{label}:[{bar}] {percent}%" + str(size).rjust(dn) +"kB/" + str(total) + "kB" + "[" + pkg + "]"
+
+    sys.stdout.write(out.format(label=label, bar=bar, percent=percent))
+    sys.stdout.flush()
+
 class UrlRetriever(urllib.FancyURLopener):
     """
      For catching error for urlretrieve()
@@ -120,17 +134,24 @@ class FileDownloader(object):
         """
         self.byte += blocksize
         self.total = totalsize
-
+    
+        label    = 'Downloading'
         readsize = '{:,d}'.format(self.byte / 1024)
         total    = '{:,.1f}'.format(self.total / 1024.0)
 
-        dn = len(str(total))
-
+        dn  = len(str(total))
         per = 100 * count * blocksize / totalsize
-        out = '\r' + 'Downloading ' + str(per).rjust(3) + '%' + ' [' + self.download_file + '] ' + str(readsize).rjust(dn) + ' kB/' + str(total) + ' kB'
+        #out = '\r' + 'Downloading ' + str(per).rjust(3) + '%' + ' [' + self.download_file + '] ' + str(readsize).rjust(dn) + ' kB/' + str(total) + ' kB'
+        
+        slugs   = slug * int(round(per / 100.0 * bar_length))
+        percent = float(count * blocksize) / totalsize
+        spaces  = space * (bar_length - len(slugs))
+        
+        writing_bar('%s' % label, slugs + spaces, int(round(percent * 100)), readsize, total, self.download_file)
 
-        sys.stdout.write(out)
-        sys.stdout.flush()
+        #sys.stdout.write(out)
+        #sys.stdout.flush()
+        
         self.outlen = len(out)
 
     def _is_connected(self):
