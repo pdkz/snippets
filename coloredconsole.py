@@ -19,16 +19,14 @@ class ColoredConsole(object):
         ColoredConsole.colors = color
 
     @classmethod
-    def printf(cls, col, *objects, **kwargs):
+    def print(cls, *objects, **kwargs):
         pass
 
 class ColoredConsoleWin32(ColoredConsole):
     if os.name == 'nt':
         STD_OUTPUT_HANDLE = -11
 
-        """
-            Foreground color definition
-        """
+        # Foreground color definition
         FG_BLACK = 0x00
         FG_BLUE  = 0x01
         FG_GREEN = 0x02
@@ -41,9 +39,7 @@ class ColoredConsoleWin32(ColoredConsole):
 
         FG_INTENSITY = 0x08
 
-        """
-            Background color definition
-        """
+        # Background color definition
         BG_BLACK = 0x00
         BG_BLUE  = 0x10
         BG_GREEN = 0x20
@@ -56,38 +52,41 @@ class ColoredConsoleWin32(ColoredConsole):
 
         BG_INTENSITY = 0x80
 
-        fg_colors = { ConsoleColor.CLEAR   : FG_WHITE,
-                      ConsoleColor.BLACK   : FG_BLACK,
-                      ConsoleColor.BLUE    : FG_BLUE | FG_INTENSITY,
-                      ConsoleColor.GREEN   : FG_GREEN | FG_INTENSITY,
-                      ConsoleColor.RED     : FG_RED | FG_INTENSITY,
-                      ConsoleColor.WHITE   : FG_WHITE | FG_INTENSITY,
-                      ConsoleColor.CYAN    : FG_CYAN | FG_INTENSITY,
-                      ConsoleColor.MAGENTA : FG_MAGENTA | FG_INTENSITY,
-                      ConsoleColor.YELLOW  : FG_YELLOW | FG_INTENSITY,
-                     }
+        fg_colors = {
+            ConsoleColor.CLEAR   : FG_WHITE,
+            ConsoleColor.BLACK   : FG_BLACK,
+            ConsoleColor.BLUE    : FG_BLUE | FG_INTENSITY,
+            ConsoleColor.GREEN   : FG_GREEN | FG_INTENSITY,
+            ConsoleColor.RED     : FG_RED | FG_INTENSITY,
+            ConsoleColor.WHITE   : FG_WHITE | FG_INTENSITY,
+            ConsoleColor.CYAN    : FG_CYAN | FG_INTENSITY,
+            ConsoleColor.MAGENTA : FG_MAGENTA | FG_INTENSITY,
+            ConsoleColor.YELLOW  : FG_YELLOW | FG_INTENSITY,
+        }
 
-        bg_colors = { ConsoleColor.BLACK   : BG_BLACK,
-                      ConsoleColor.BLUE    : BG_BLUE | BG_INTENSITY,
-                      ConsoleColor.GREEN   : BG_GREEN | BG_INTENSITY,
-                      ConsoleColor.RED     : BG_RED | BG_INTENSITY,
-                      ConsoleColor.WHITE   : BG_WHITE | BG_INTENSITY,
-                      ConsoleColor.CYAN    : BG_CYAN | BG_INTENSITY,
-                      ConsoleColor.MAGENTA : BG_MAGENTA | BG_INTENSITY,
-                      ConsoleColor.YELLOW  : BG_YELLOW | BG_INTENSITY,
-                     }
+        bg_colors = {
+            ConsoleColor.BLACK   : BG_BLACK,
+            ConsoleColor.BLUE    : BG_BLUE | BG_INTENSITY,
+            ConsoleColor.GREEN   : BG_GREEN | BG_INTENSITY,
+            ConsoleColor.RED     : BG_RED | BG_INTENSITY,
+            ConsoleColor.WHITE   : BG_WHITE | BG_INTENSITY,
+            ConsoleColor.CYAN    : BG_CYAN | BG_INTENSITY,
+            ConsoleColor.MAGENTA : BG_MAGENTA | BG_INTENSITY,
+            ConsoleColor.YELLOW  : BG_YELLOW | BG_INTENSITY,
+        }
+
         std_out_handler = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
 
     def __init__(self):
         ColoredConsole.__init__(self, ColoredConsoleWin32.colors)
 
     @classmethod
-    def printf(cls, col, *objects, **kwargs):
+    def print(cls, *objects, **kwargs):
+        col = kwargs.get('col', 'clear')
         cls.set_color(col)
-
         sep = kwargs.get('sep', ' ')
         out = kwargs.get('file', sys.stdout)
-        out.write(sep.join(objects))
+        out.write(sep.join(objects) + '\n')
         cls.set_color(ConsoleColor.CLEAR)
 
     @classmethod
@@ -115,10 +114,11 @@ class ColoredConsoleLinux(ColoredConsole):
         ColoredConsole.__init__(self, ColoredConsoleLinux.colors)
 
     @classmethod
-    def printf(cls, col, *objects, **kwargs):
+    def print(cls, *objects, **kwargs):
+        col = kwargs.get('col', 'clear')
         sep = kwargs.get('sep', ' ')
         out = kwargs.get('file', sys.stdout)
-        out.write(cls.colors.get(col, ConsoleColor.CLEAR) + sep.join(objects))
+        out.write(cls.colors.get(col, ConsoleColor.CLEAR) + sep.join(objects) + '\n')
         out.write(cls.colors.get(ConsoleColor.CLEAR))
 
 def format_string(string, width, align):
